@@ -1,0 +1,11 @@
+.git
+.gitignore
+venv/
+.env
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.sqlite3
+*.log
+college_students_30000.csv
