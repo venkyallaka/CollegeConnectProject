@@ -1,0 +1,92 @@
+{
+  "name": "CGPA",
+  "continuous_cols": [
+    "attendance",
+    "library_books",
+    "disciplinary_cases",
+    "semester_backlogs"
+  ],
+  "categorical_cols": [
+    "gender",
+    "department",
+    "year",
+    "section",
+    "hostel",
+    "scholarship",
+    "club_membership",
+    "transport_mode"
+  ],
+  "target_col": "cgpa",
+  "task_type": "regression",
+  "cardinalities": [
+    2,
+    6,
+    4,
+    3,
+    2,
+    2,
+    3,
+    4
+  ],
+  "d_token": 24,
+  "scaler_mean": [
+    79.86658823529412,
+    7.5144705882352945,
+    1.488,
+    3.0018039215686274
+  ],
+  "scaler_scale": [
+    11.798305184330784,
+    4.617442040159572,
+    1.1233585497838832,
+    1.988436345173803
+  ],
+  "cat_classes": {
+    "gender": [
+      "Female",
+      "Male"
+    ],
+    "department": [
+      "AIML",
+      "CSE",
+      "Civil",
+      "ECE",
+      "EEE",
+      "Mechanical"
+    ],
+    "year": [
+      "1",
+      "2",
+      "3",
+      "4"
+    ],
+    "section": [
+      "A",
+      "B",
+      "C"
+    ],
+    "hostel": [
+      "No",
+      "Yes"
+    ],
+    "scholarship": [
+      "No",
+      "Yes"
+    ],
+    "club_membership": [
+      "Cultural",
+      "Sports",
+      "Technical"
+    ],
+    "transport_mode": [
+      "Bike",
+      "Bus",
+      "Hostel",
+      "Private"
+    ]
+  },
+  "target_classes": null,
+  "n_outputs": 1,
+  "n_heads": 4,
+  "n_blocks": 2
+}

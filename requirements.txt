@@ -1,0 +1,8 @@
+torch
+pandas
+numpy
+scikit-learn
+langgraph
+langchain-core
+fastapi
+uvicorn[standard]

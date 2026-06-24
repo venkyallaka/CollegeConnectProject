@@ -1,0 +1,86 @@
+{
+  "name": "Mentoring",
+  "continuous_cols": [
+    "cgpa",
+    "attendance",
+    "semester_backlogs",
+    "disciplinary_cases",
+    "library_books"
+  ],
+  "categorical_cols": [
+    "department",
+    "year",
+    "section",
+    "hostel",
+    "club_membership",
+    "transport_mode"
+  ],
+  "target_col": "needs_mentoring",
+  "task_type": "classification",
+  "cardinalities": [
+    6,
+    4,
+    3,
+    2,
+    3,
+    4
+  ],
+  "d_token": 24,
+  "scaler_mean": [
+    7.508857647058823,
+    79.86658823529412,
+    3.0018039215686274,
+    1.488,
+    7.5144705882352945
+  ],
+  "scaler_scale": [
+    1.438488921536311,
+    11.798305184330784,
+    1.988436345173803,
+    1.1233585497838832,
+    4.617442040159572
+  ],
+  "cat_classes": {
+    "department": [
+      "AIML",
+      "CSE",
+      "Civil",
+      "ECE",
+      "EEE",
+      "Mechanical"
+    ],
+    "year": [
+      "1",
+      "2",
+      "3",
+      "4"
+    ],
+    "section": [
+      "A",
+      "B",
+      "C"
+    ],
+    "hostel": [
+      "No",
+      "Yes"
+    ],
+    "club_membership": [
+      "Cultural",
+      "Sports",
+      "Technical"
+    ],
+    "transport_mode": [
+      "Bike",
+      "Bus",
+      "Hostel",
+      "Private"
+    ]
+  },
+  "target_classes": [
+    "No",
+    "Yes"
+  ],
+  "n_outputs": 1,
+  "n_heads": 4,
+  "n_blocks": 2
+}

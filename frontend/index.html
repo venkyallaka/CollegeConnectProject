@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>CollegeConnect — Student Outlook Cards</title>
+<style>
+  :root{
+    --ink:#1c2430;
+    --paper:#f4efe4;
+    --paper-2:#ece4d2;
+    --rule:#cdbfa0;
+    --brass:#a8743a;
+    --brass-deep:#7d5326;
+    --green:#3c6e52;
+    --red:#9a3b34;
+    --muted:#6b6356;
+    --card:#fffdf8;
+    --font-display:'Source Serif 4','Iowan Old Style',Georgia,serif;
+    --font-body:'IBM Plex Sans',Arial,sans-serif;
+    --font-mono:'IBM Plex Mono',monospace;
+  }
+
+  @import url('https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--paper);
+    background-image:
+      radial-gradient(circle at 0 0, rgba(0,0,0,0.025) 1px, transparent 1px);
+    background-size:14px 14px;
+    color:var(--ink);
+    font-family:var(--font-body);
+    min-height:100vh;
+  }
+
+  header{
+    border-bottom:3px double var(--brass-deep);
+    padding:28px 32px 18px;
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:10px;
+  }
+  .brand{
+    display:flex;
+    align-items:baseline;
+    gap:14px;
+  }
+  .brand .crest{
+    font-family:var(--font-display);
+    font-weight:700;
+    font-size:28px;
+    color:var(--brass-deep);
+    border:2px solid var(--brass-deep);
+    border-radius:50%;
+    width:46px;
+    height:46px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-shrink:0;
+  }
+  h1{
+    font-family:var(--font-display);
+    font-weight:700;
+    font-size:26px;
+    margin:0;
+    letter-spacing:0.2px;
+  }
+  .subtitle{
+    font-size:13px;
+    color:var(--muted);
+    font-family:var(--font-mono);
+    letter-spacing:0.4px;
+  }
+  .registry-note{
+    font-family:var(--font-mono);
+    font-size:11px;
+    color:var(--muted);
+    text-align:right;
+  }
+
+  main{
+    max-width:1080px;
+    margin:0 auto;
+    padding:36px 24px 80px;
+    min-width:0;
+  }
+
+  .lookup{
+    background:var(--card);
+    border:1px solid var(--rule);
+    border-radius:3px;
+    padding:22px 24px;
+    box-shadow:0 1px 0 var(--rule), 0 10px 24px -18px rgba(0,0,0,0.5);
+    position:relative;
+  }
+  .lookup::before{
+    content:"REGISTRY LOOKUP";
+    position:absolute;
+    top:-10px;
+    left:20px;
+    background:var(--paper);
+    padding:0 8px;
+    font-family:var(--font-mono);
+    font-size:11px;
+    letter-spacing:1.5px;
+    color:var(--brass-deep);
+  }
+  .lookup-row{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+  }
+
+  /* ---- Prompt query panel ---- */
+  .query-panel{
+    background:var(--card);
+    border:1px solid var(--rule);
+    border-radius:3px;
+    padding:22px 24px;
+    box-shadow:0 1px 0 var(--rule), 0 10px 24px -18px rgba(0,0,0,0.5);
+    position:relative;
+    margin-bottom:26px;
+    min-width:0;
+    overflow:hidden;
+  }
+  .query-panel::before{
+    content:"ASK THE REGISTRY";
+    position:absolute;
+    top:-10px;
+    left:20px;
+    background:var(--paper);
+    padding:0 8px;
+    font-family:var(--font-mono);
+    font-size:11px;
+    letter-spacing:1.5px;
+    color:var(--brass-deep);
+  }
+  textarea#promptInput{
+    width:100%;
+    min-height:54px;
+    padding:12px 14px;
+    font-size:15px;
+    font-family:var(--font-mono);
+    border:1px solid var(--rule);
+    border-radius:2px;
+    background:#fffefb;
+    color:var(--ink);
+    resize:vertical;
+  }
+  textarea#promptInput:focus{
+    outline:none;
+    border-color:var(--brass);
+    box-shadow:0 0 0 3px rgba(168,116,58,0.15);
+  }
+  .query-row{
+    display:flex;
+    gap:10px;
+    margin-top:10px;
+    align-items:flex-start;
+  }
+  .examples{
+    margin-top:10px;
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+  }
+  .example-chip{
+    font-family:var(--font-mono);
+    font-size:11.5px;
+    color:var(--brass-deep);
+    background:var(--paper-2);
+    border:1px solid var(--rule);
+    border-radius:12px;
+    padding:4px 11px;
+    cursor:pointer;
+  }
+  .example-chip:hover{background:var(--rule);}
+
+  .interpretation{
+    margin-top:16px;
+    font-family:var(--font-mono);
+    font-size:12px;
+    color:var(--muted);
+    border-top:1px dashed var(--rule);
+    padding-top:12px;
+  }
+  .interpretation .interp-line{margin-bottom:4px;}
+  .interpretation code{
+    background:var(--paper-2);
+    padding:2px 6px;
+    border-radius:3px;
+    color:var(--ink);
+  }
+  .aggregate-result{
+    font-family:var(--font-display);
+    font-size:30px;
+    font-weight:700;
+    color:var(--brass-deep);
+    margin-top:6px;
+  }
+  #queryResultArea{
+    max-width:100%;
+    min-width:0;
+    overflow-x:auto;
+    padding-bottom:8px;
+  }
+
+  table.results-table{
+    width:100%;
+    min-width:1120px;
+    border-collapse:collapse;
+    margin-top:14px;
+    font-size:13px;
+  }
+  table.results-table th{
+    text-align:left;
+    font-family:var(--font-mono);
+    font-size:10.5px;
+    letter-spacing:0.6px;
+    color:var(--muted);
+    text-transform:uppercase;
+    border-bottom:2px solid var(--rule);
+    padding:8px 10px;
+  }
+  table.results-table td{
+    padding:8px 10px;
+    border-bottom:1px solid var(--paper-2);
+    overflow-wrap:anywhere;
+  }
+  table.results-table tbody tr{cursor:pointer;}
+  table.results-table tbody tr:hover{background:var(--paper-2);}
+  table.results-table td.sid{font-family:var(--font-mono); font-weight:600; color:var(--brass-deep);}
+  .table-note{
+    font-family:var(--font-mono);
+    font-size:11px;
+    color:var(--muted);
+    margin-top:8px;
+  }
+  .search-wrap{
+    position:relative;
+    flex:1;
+    min-width:240px;
+  }
+  input#searchInput{
+    width:100%;
+    padding:12px 14px;
+    font-size:15px;
+    font-family:var(--font-mono);
+    border:1px solid var(--rule);
+    border-radius:2px;
+    background:#fffefb;
+    color:var(--ink);
+  }
+  input#searchInput:focus{
+    outline:none;
+    border-color:var(--brass);
+    box-shadow:0 0 0 3px rgba(168,116,58,0.15);
+  }
+  .suggestions{
+    position:absolute;
+    top:calc(100% + 6px);
+    left:0;
+    right:0;
+    background:var(--card);
+    border:1px solid var(--rule);
+    border-radius:2px;
+    box-shadow:0 12px 28px -12px rgba(0,0,0,0.35);
+    max-height:280px;
+    overflow-y:auto;
+    z-index:20;
+    display:none;
+  }
+  .suggestions.open{display:block;}
+  .sugg-item{
+    padding:10px 14px;
+    display:flex;
+    justify-content:space-between;
+    gap:10px;
+    cursor:pointer;
+    font-size:13.5px;
+    border-bottom:1px solid var(--paper-2);
+  }
+  .sugg-item:last-child{border-bottom:none;}
+  .sugg-item:hover, .sugg-item.active{background:var(--paper-2);}
+  .sugg-id{font-family:var(--font-mono); font-weight:600;}
+  .sugg-meta{color:var(--muted); font-size:12.5px;}
+
+  button#go, button#queryGo{
+    background:var(--brass-deep);
+    color:#fbf6ea;
+    border:none;
+    padding:0 24px;
+    font-family:var(--font-body);
+    font-weight:600;
+    font-size:14px;
+    letter-spacing:0.3px;
+    border-radius:2px;
+    cursor:pointer;
+    transition:background 0.15s ease;
+  }
+  button#go:hover, button#queryGo:hover{background:#5e3d1c;}
+  button#go:disabled, button#queryGo:disabled{background:#b5a98c; cursor:default;}
+
+  .hint{
+    margin-top:10px;
+    font-size:12px;
+    color:var(--muted);
+    font-family:var(--font-mono);
+  }
+
+  #state-area{margin-top:30px;}
+
+  .empty-state, .error-state, .loading-state{
+    text-align:center;
+    padding:60px 20px;
+    color:var(--muted);
+    font-family:var(--font-mono);
+    font-size:13px;
+  }
+  .error-state{color:var(--red);}
+
+  /* ---- Result layout ---- */
+  .result{
+    display:grid;
+    grid-template-columns:300px 1fr;
+    gap:24px;
+    align-items:start;
+  }
+  @media (max-width:760px){
+    .result{grid-template-columns:1fr;}
+  }
+
+  .index-card{
+    background:var(--card);
+    border:1px solid var(--rule);
+    border-radius:3px;
+    padding:22px 20px;
+    position:relative;
+    box-shadow:0 10px 24px -18px rgba(0,0,0,0.5);
+  }
+  .index-card::after{
+    content:"";
+    position:absolute;
+    top:54px; left:0; right:0;
+    border-top:1px dashed var(--rule);
+  }
+  .index-card .sid{
+    font-family:var(--font-mono);
+    font-size:13px;
+    color:var(--brass-deep);
+    letter-spacing:1px;
+  }
+  .index-card h2{
+    font-family:var(--font-display);
+    margin:4px 0 18px;
+    font-size:21px;
+  }
+  .field-row{
+    display:flex;
+    justify-content:space-between;
+    padding:7px 0;
+    border-bottom:1px solid var(--paper-2);
+    font-size:13px;
+  }
+  .field-row:last-child{border-bottom:none;}
+  .field-row .k{color:var(--muted);}
+  .field-row .v{font-weight:600; text-align:right;}
+
+  .cards-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(220px,1fr));
+    gap:14px;
+  }
+
+  .pred-card{
+    background:var(--card);
+    border:1px solid var(--rule);
+    border-radius:3px;
+    padding:16px 16px 18px;
+    box-shadow:0 8px 18px -14px rgba(0,0,0,0.45);
+    border-left:5px solid var(--rule);
+  }
+  .pred-card .eyebrow{
+    font-family:var(--font-mono);
+    font-size:10.5px;
+    letter-spacing:1.4px;
+    color:var(--muted);
+    text-transform:uppercase;
+  }
+  .pred-card .verdict{
+    font-family:var(--font-display);
+    font-size:22px;
+    margin:6px 0 10px;
+    font-weight:700;
+  }
+  .pred-card.positive{border-left-color:var(--green);}
+  .pred-card.positive .verdict{color:var(--green);}
+  .pred-card.negative{border-left-color:var(--red);}
+  .pred-card.negative .verdict{color:var(--red);}
+  .pred-card.neutral{border-left-color:var(--brass);}
+  .pred-card.neutral .verdict{color:var(--brass-deep);}
+
+  .confidence-bar{
+    height:6px;
+    background:var(--paper-2);
+    border-radius:3px;
+    overflow:hidden;
+    margin-top:4px;
+  }
+  .confidence-fill{
+    height:100%;
+    background:var(--brass);
+  }
+  .pred-card.positive .confidence-fill{background:var(--green);}
+  .pred-card.negative .confidence-fill{background:var(--red);}
+  .confidence-label{
+    font-family:var(--font-mono);
+    font-size:11px;
+    color:var(--muted);
+    margin-top:5px;
+  }
+
+  .pipeline-strip{
+    margin-top:28px;
+    font-family:var(--font-mono);
+    font-size:11px;
+    color:var(--muted);
+    display:flex;
+    align-items:center;
+    gap:6px;
+    flex-wrap:wrap;
+  }
+  .pipeline-strip .node{
+    border:1px solid var(--rule);
+    border-radius:12px;
+    padding:3px 10px;
+    background:var(--card);
+  }
+  .pipeline-strip .arrow{color:var(--rule);}
+
+  .llm-panel{
+    margin-top:18px;
+    border:1px solid var(--rule);
+    background:var(--card);
+    padding:16px;
+  }
+  .llm-panel .eyebrow{
+    font-family:var(--font-mono);
+    font-size:10.5px;
+    letter-spacing:1.4px;
+    color:var(--muted);
+    text-transform:uppercase;
+    margin-bottom:8px;
+  }
+  .llm-text{
+    font-family:var(--font-display);
+    font-size:19px;
+    line-height:1.45;
+    color:var(--ink);
+  }
+  .llm-note{
+    margin-top:10px;
+    font-family:var(--font-mono);
+    font-size:11px;
+    color:var(--muted);
+  }
+  .full-profile{
+    margin-top:18px;
+    border:1px solid var(--rule);
+    background:var(--card);
+    padding:16px;
+  }
+  .full-profile h3{
+    margin:0 0 12px;
+    font-family:var(--font-display);
+    font-size:22px;
+  }
+  .profile-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));
+    gap:8px 14px;
+  }
+  .profile-item{
+    border-bottom:1px solid rgba(205,191,160,0.7);
+    padding:6px 0;
+    min-width:0;
+  }
+  .profile-item .k{
+    display:block;
+    font-family:var(--font-mono);
+    font-size:10.5px;
+    letter-spacing:1px;
+    color:var(--muted);
+    text-transform:uppercase;
+    margin-bottom:3px;
+  }
+  .profile-item .v{
+    display:block;
+    color:var(--ink);
+    overflow-wrap:anywhere;
+  }
+
+  footer{
+    text-align:center;
+    font-family:var(--font-mono);
+    font-size:11px;
+    color:var(--muted);
+    padding:20px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <div class="crest">CC</div>
+    <div>
+      <h1>CollegeConnect</h1>
+      <div class="subtitle">STUDENT OUTLOOK REGISTRY</div>
+    </div>
+  </div>
+  <div class="registry-note">5 FT-Transformer models &middot; via LangGraph<br/>backend: <span id="apiBase"></span></div>
+</header>
+
+<main>
+  <div class="query-panel">
+    <div class="query-row">
+      <textarea id="promptInput" placeholder="e.g. students with cgpa greater than 7 — or — CSE students with attendance below 75 and backlogs at least 2 — or — average cgpa of students in AIML"></textarea>
+    </div>
+    <div class="query-row">
+      <button id="queryGo">Search</button>
+    </div>
+    <div class="examples">
+      <span class="example-chip" data-q="students with cgpa greater than 7">cgpa &gt; 7</span>
+      <span class="example-chip" data-q="CSE students with attendance below 75 and backlogs at least 2">CSE, low attendance, 2+ backlogs</span>
+      <span class="example-chip" data-q="average cgpa of students in AIML">average cgpa in AIML</span>
+      <span class="example-chip" data-q="how many students are placed">count placed</span>
+      <span class="example-chip" data-q="top 10 students by cgpa">top 10 by cgpa</span>
+    </div>
+    <div id="queryResultArea"></div>
+  </div>
+
+  <div class="lookup">
+    <div class="lookup-row">
+      <div class="search-wrap">
+        <input id="searchInput" type="text" placeholder="Search ID, name, email, phone, department, city, or state" autocomplete="off" />
+        <div class="suggestions" id="suggestions"></div>
+      </div>
+      <button id="go" disabled>Run pipeline</button>
+    </div>
+    <div class="hint">Pick a student from the list, then run the full prediction pipeline: placement &rarr; CGPA &rarr; scholarship &rarr; mentoring &rarr; internship.</div>
+  </div>
+
+  <div id="state-area">
+    <div class="empty-state">No student selected yet. Search above to pull up an outlook card.</div>
+  </div>
+</main>
+
+<footer>CollegeConnect demo &middot; predictions are model outputs on synthetic data, not institutional decisions.</footer>
+
+<script>
+const API_BASE = window.location.hostname === "" || window.location.protocol === "file:"
+  ? "http://localhost:8001"
+  : "http://localhost:8001"; // backend always runs locally via `uvicorn api:app`
+
+document.getElementById("apiBase").textContent = API_BASE;
+
+const searchInput = document.getElementById("searchInput");
+const suggestionsBox = document.getElementById("suggestions");
+const goBtn = document.getElementById("go");
+const stateArea = document.getElementById("state-area");
+
+let selectedId = null;
+let activeIndex = -1;
+let currentItems = [];
+let debounceTimer = null;
+
+function renderSuggestions(items){
+  currentItems = items;
+  activeIndex = -1;
+  if(!items.length){
+    suggestionsBox.classList.remove("open");
+    suggestionsBox.innerHTML = "";
+    return;
+  }
+  suggestionsBox.innerHTML = items.map((s,i) => `
+    <div class="sugg-item" data-index="${i}" data-id="${s.student_id}">
+      <span class="sugg-id">${s.student_id} · ${s.name || ""}</span>
+      <span class="sugg-meta">${s.department} &middot; yr ${s.year} &middot; sec ${s.section} &middot; cgpa ${s.cgpa}</span>
+    </div>
+  `).join("");
+  suggestionsBox.classList.add("open");
+}
+
+async function fetchSuggestions(q){
+  try{
+    const res = await fetch(`${API_BASE}/api/students?q=${encodeURIComponent(q)}`);
+    if(!res.ok) throw new Error("search failed");
+    const data = await res.json();
+    renderSuggestions(data);
+  }catch(e){
+    suggestionsBox.innerHTML = `<div class="sugg-item">Can't reach the API. Is uvicorn running on port 8000?</div>`;
+    suggestionsBox.classList.add("open");
+  }
+}
+
+searchInput.addEventListener("input", () => {
+  selectedId = null;
+  goBtn.disabled = true;
+  clearTimeout(debounceTimer);
+  const q = searchInput.value.trim();
+  debounceTimer = setTimeout(() => fetchSuggestions(q), 180);
+});
+
+searchInput.addEventListener("focus", () => {
+  if(searchInput.value.trim().length === 0) fetchSuggestions("");
+});
+
+searchInput.addEventListener("keydown", (e) => {
+  if(!suggestionsBox.classList.contains("open")) return;
+  if(e.key === "ArrowDown"){
+    e.preventDefault();
+    activeIndex = Math.min(activeIndex + 1, currentItems.length - 1);
+    highlightActive();
+  }else if(e.key === "ArrowUp"){
+    e.preventDefault();
+    activeIndex = Math.max(activeIndex - 1, 0);
+    highlightActive();
+  }else if(e.key === "Enter"){
+    e.preventDefault();
+    if(activeIndex >= 0 && currentItems[activeIndex]) pickStudent(currentItems[activeIndex]);
+  }else if(e.key === "Escape"){
+    suggestionsBox.classList.remove("open");
+  }
+});
+
+function highlightActive(){
+  [...suggestionsBox.children].forEach((el,i) => {
+    el.classList.toggle("active", i === activeIndex);
+  });
+}
+
+suggestionsBox.addEventListener("click", (e) => {
+  const item = e.target.closest(".sugg-item");
+  if(!item || !item.dataset.id) return;
+  const match = currentItems.find(s => s.student_id === item.dataset.id);
+  if(match) pickStudent(match);
+});
+
+function pickStudent(s){
+  selectedId = s.student_id;
+  searchInput.value = `${s.student_id} — ${s.name || s.department}, yr ${s.year}`;
+  suggestionsBox.classList.remove("open");
+  goBtn.disabled = false;
+}
+
+document.addEventListener("click", (e) => {
+  if(!e.target.closest(".search-wrap")) suggestionsBox.classList.remove("open");
+});
+
+goBtn.addEventListener("click", () => {
+  if(selectedId) runPipeline(selectedId);
+});
+
+function verdictClass(label, kind){
+  const positive = ["Placed","Yes"];
+  const negative = ["Not Placed"];
+  if(kind === "mentoring"){
+    // needing mentoring is a "flag", not strictly positive/negative news
+    return label === "Yes" ? "negative" : "positive";
+  }
+  if(positive.includes(label)) return "positive";
+  if(negative.includes(label)) return "negative";
+  return "neutral";
+}
+
+function escapeHtml(value){
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+function labelFromKey(key){
+  return key
+    .replaceAll("_", " ")
+    .replace(/\b\w/g, ch => ch.toUpperCase());
+}
+
+function renderFullProfile(profile){
+  if(!profile || !Object.keys(profile).length) return "";
+  const preferredOrder = [
+    "student_id", "first_name", "last_name", "gender", "dob", "phone_number", "email",
+    "address", "city", "state", "department", "year", "section", "cgpa", "attendance",
+    "fee_status", "scholarship", "hostel", "placement_status", "company_name",
+    "internship_status", "parent_name", "parent_phone", "transport_mode",
+    "library_books", "disciplinary_cases", "club_membership", "semester_backlogs"
+  ];
+  const keys = [
+    ...preferredOrder.filter(key => key in profile),
+    ...Object.keys(profile).filter(key => !preferredOrder.includes(key))
+  ];
+  const rows = keys.map(key => `
+    <div class="profile-item">
+      <span class="k">${escapeHtml(labelFromKey(key))}</span>
+      <span class="v">${escapeHtml(profile[key])}</span>
+    </div>
+  `).join("");
+  return `
+    <div class="full-profile">
+      <h3>Complete student record</h3>
+      <div class="profile-grid">${rows}</div>
+    </div>
+  `;
+}
+
+async function runPipeline(studentId){
+  goBtn.disabled = true;
+  stateArea.innerHTML = `<div class="loading-state">Running prediction pipeline for ${escapeHtml(studentId)}...</div>`;
+  try{
+    const res = await fetch(`${API_BASE}/api/predict/${encodeURIComponent(studentId)}`);
+    if(!res.ok){
+      const text = await res.text();
+      throw new Error(text || `HTTP ${res.status}`);
+    }
+    const data = await res.json();
+    renderResult(data);
+  }catch(e){
+    stateArea.innerHTML = `<div class="error-state">Couldn't run the pipeline: ${escapeHtml(e.message)}</div>`;
+  }finally{
+    goBtn.disabled = false;
+  }
+}
+
+function renderResult(data){
+  const s = data.student;
+  const p = data.predictions;
+  const fullProfileHtml = renderFullProfile(data.full_profile);
+  const explanation = data.llm_explanation || {};
+  const explanationTitle = explanation.source === "huggingface"
+    ? `Hugging Face LLM explanation (${explanation.model})`
+    : "Clear explanation";
+  const explanationNote = explanation.note
+    ? `<div class="llm-note">${escapeHtml(explanation.note)}</div>`
+    : "";
+
+  const cards = [
+    { eyebrow:"Placement model", value:p.placement.label, conf:p.placement.confidence, kind:"placement" },
+    { eyebrow:"CGPA model (predicted)", value:p.cgpa.value.toFixed(2), conf:null, kind:"cgpa" },
+    { eyebrow:"Scholarship model", value:p.scholarship.label, conf:p.scholarship.confidence, kind:"scholarship" },
+    { eyebrow:"Mentoring model", value: p.mentoring.label === "Yes" ? "Needs mentoring" : "On track", conf:p.mentoring.confidence, kind:"mentoring", rawLabel:p.mentoring.label },
+    { eyebrow:"Internship model", value:p.internship.label, conf:p.internship.confidence, kind:"internship" },
+  ];
+
+  const cardsHtml = cards.map(c => {
+    const cls = verdictClass(c.rawLabel || c.value, c.kind);
+    const confHtml = c.conf === null ? "" : `
+      <div class="confidence-bar"><div class="confidence-fill" style="width:${Math.round(c.conf*100)}%"></div></div>
+      <div class="confidence-label">confidence ${(c.conf*100).toFixed(1)}%</div>`;
+    return `
+      <div class="pred-card ${cls}">
+        <div class="eyebrow">${c.eyebrow}</div>
+        <div class="verdict">${c.value}</div>
+        ${confHtml}
+      </div>`;
+  }).join("");
+
+  stateArea.innerHTML = `
+    <div class="result">
+      <div class="index-card">
+        <div class="sid">${s.student_id}</div>
+        <h2>${s.department} &middot; Year ${s.year}${s.section}</h2>
+        <div class="field-row"><span class="k">Gender</span><span class="v">${s.gender}</span></div>
+        <div class="field-row"><span class="k">Location</span><span class="v">${s.city}, ${s.state}</span></div>
+        <div class="field-row"><span class="k">Actual CGPA</span><span class="v">${s.actual_cgpa}</span></div>
+        <div class="field-row"><span class="k">Attendance</span><span class="v">${s.attendance}%</span></div>
+        <div class="field-row"><span class="k">Backlogs</span><span class="v">${s.semester_backlogs}</span></div>
+        <div class="field-row"><span class="k">Disciplinary cases</span><span class="v">${s.disciplinary_cases}</span></div>
+        <div class="field-row"><span class="k">Library books out</span><span class="v">${s.library_books}</span></div>
+        <div class="field-row"><span class="k">Scholarship (on file)</span><span class="v">${s.scholarship}</span></div>
+        <div class="field-row"><span class="k">Hostel</span><span class="v">${s.hostel}</span></div>
+        <div class="field-row"><span class="k">Club</span><span class="v">${s.club_membership}</span></div>
+        <div class="field-row"><span class="k">Actual placement</span><span class="v">${s.actual_placement_status}</span></div>
+        <div class="field-row"><span class="k">Actual internship</span><span class="v">${s.actual_internship_status}</span></div>
+      </div>
+      <div>
+        <div class="cards-grid">${cardsHtml}</div>
+        <div class="llm-panel">
+          <div class="eyebrow">${escapeHtml(explanationTitle)}</div>
+          <div class="llm-text">${escapeHtml(explanation.text || data.report)}</div>
+          ${explanationNote}
+        </div>
+        <div class="pipeline-strip">
+          <span class="node">load_student</span><span class="arrow">&rarr;</span>
+          <span class="node">placement</span><span class="arrow">&rarr;</span>
+          <span class="node">cgpa</span><span class="arrow">&rarr;</span>
+          <span class="node">scholarship</span><span class="arrow">&rarr;</span>
+          <span class="node">mentoring</span><span class="arrow">&rarr;</span>
+          <span class="node">internship</span><span class="arrow">&rarr;</span>
+          <span class="node">aggregate</span>
+        </div>
+        ${fullProfileHtml}
+      </div>
+    </div>
+  `;
+}
+
+const promptInput = document.getElementById("promptInput");
+const queryGoBtn = document.getElementById("queryGo");
+const queryResultArea = document.getElementById("queryResultArea");
+
+document.querySelectorAll(".example-chip").forEach(chip => {
+  chip.addEventListener("click", () => {
+    promptInput.value = chip.dataset.q;
+    runQuery(chip.dataset.q);
+  });
+});
+
+queryGoBtn.addEventListener("click", () => {
+  const p = promptInput.value.trim();
+  if (p) runQuery(p);
+});
+
+promptInput.addEventListener("keydown", (e) => {
+  if (e.key === "Enter" && !e.shiftKey) {
+    e.preventDefault();
+    const p = promptInput.value.trim();
+    if (p) runQuery(p);
+  }
+});
+
+async function runQuery(prompt) {
+  queryGoBtn.disabled = true;
+  queryResultArea.innerHTML = `<div class="loading-state">Reading "${prompt}"…</div>`;
+  try {
+    const res = await fetch(`${API_BASE}/api/query?prompt=${encodeURIComponent(prompt)}&limit=30000`);
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ detail: "Unknown error" }));
+      throw new Error(err.detail || "Query failed");
+    }
+    const data = await res.json();
+    renderQueryResult(data);
+  } catch (e) {
+    queryResultArea.innerHTML = `<div class="error-state">Couldn't run that search: ${e.message}<br/><br/>Make sure the API is running: <code>uvicorn api:app --port 8000</code></div>`;
+  } finally {
+    queryGoBtn.disabled = false;
+  }
+}
+
+function renderQueryResult(data) {
+  const interpHtml = `
+    <div class="interpretation">
+      <div class="interp-line">Interpreted as: <code>${data.interpreted_as}</code></div>
+      ${data.unmatched_clauses.length ? `<div class="interp-line">Didn't understand: <code>${data.unmatched_clauses.join(", ")}</code></div>` : ""}
+      <div class="interp-line">Matched ${data.matched_count.toLocaleString()} student${data.matched_count === 1 ? "" : "s"}</div>
+    </div>`;
+
+  if ("aggregate_result" in data) {
+    queryResultArea.innerHTML = `
+      ${interpHtml}
+      <div class="aggregate-result">${data.aggregate_result === null ? "—" : data.aggregate_result}</div>
+    `;
+    return;
+  }
+
+  if (!data.rows.length) {
+    queryResultArea.innerHTML = `${interpHtml}<div class="empty-state">No students matched that.</div>`;
+    return;
+  }
+
+  const cols = Object.keys(data.rows[0]);
+  const rowsHtml = data.rows.map(r => `
+    <tr data-id="${r.student_id}">
+      ${cols.map(c => c === "student_id" ? `<td class="sid">${r[c]}</td>` : `<td>${r[c]}</td>`).join("")}
+    </tr>
+  `).join("");
+
+  queryResultArea.innerHTML = `
+    ${interpHtml}
+    <table class="results-table">
+      <thead><tr>${cols.map(c => `<th>${c.replace(/_/g, " ")}</th>`).join("")}</tr></thead>
+      <tbody>${rowsHtml}</tbody>
+    </table>
+    <div class="table-note">Showing ${data.returned_count} of ${data.matched_count.toLocaleString()} matches. Click a row to run the full prediction pipeline on that student.</div>
+  `;
+
+  queryResultArea.querySelectorAll("tbody tr").forEach(tr => {
+    tr.addEventListener("click", () => {
+      const id = tr.dataset.id;
+      searchInput.value = id;
+      goBtn.disabled = false;
+      selectedId = id;
+      runPipeline(id);
+      document.querySelector(".lookup").scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  });
+}
+</script>
+
+</body>
+</html>
